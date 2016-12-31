@@ -24,6 +24,21 @@ import util.GraphLoader;
  */
 public class MapGraph {
 	//TODO: Add your member variables here in WEEK 3
+	/** The name of the road */
+	private String roadName;
+	
+	/** The type of the road */
+	private String roadType;
+	
+	/** The two endpoints of the edge */
+	private MapNode start;
+	private MapNode end;
+	
+	
+	/** The length of the road segment, in km */
+	private double length;
+	
+	static final double DEFAULT_LENGTH = 0.01;
 	
 	
 	/** 
