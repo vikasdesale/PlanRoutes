@@ -96,8 +96,12 @@ public class GraphAdjList extends Graph {
 	 */		
 	 public List<Integer> getDistance2(int v) {
 		 // XXX: Implement this method in week 2
-		 return null;
-	}
+		 List<Integer> two_hope = new ArrayList<>();
+			for (Integer neighbour : getNeighbors(v))
+				two_hope.addAll(getNeighbors(neighbour));
+			
+			return two_hope;
+	 }
 	
 	/**
 	 * Generate string representation of adjacency list

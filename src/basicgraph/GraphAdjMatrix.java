@@ -20,7 +20,8 @@ public class GraphAdjMatrix extends Graph {
 
 	private final int defaultNumVertices = 5;
 	private int[][] adjMatrix;
-	
+	private volatile int[][] two_hopes_matrix;
+
 	/** Create a new empty Graph */
 	public GraphAdjMatrix () {
 		adjMatrix = new int[defaultNumVertices][defaultNumVertices];
@@ -105,9 +106,38 @@ public class GraphAdjMatrix extends Graph {
 	 */	
 	public List<Integer> getDistance2(int v) {
 		// XXX Implement this method in week 2
-		return null;
+		List<Integer> two_hop_neighbour = new ArrayList<>();
+		synchronized (this) {
+			if (two_hopes_matrix == null)
+				two_hopes_matrix = matrixMultiply(adjMatrix, adjMatrix);
+
+			if (v >= two_hopes_matrix.length)
+				if (v < adjMatrix.length)
+					two_hopes_matrix = matrixMultiply(adjMatrix, adjMatrix);
+				else
+					return two_hop_neighbour;
+		}
+
+		for (int i = 0; i < two_hopes_matrix.length; i++)
+			for (int j = 0; j < two_hopes_matrix[v][i]; j++)
+				two_hop_neighbour.add(i);
+
+		return two_hop_neighbour;
 	}
 	
+	private static int[][] matrixMultiply(int[][] x, int[][] y) {
+		if (x[0].length != y.length)
+			throw new IllegalArgumentException("please give correct matrices sizes");
+
+		int[][] z = new int[x.length][y[0].length];
+
+		for (int i = 0; i < x.length; i++)
+			for (int j = 0; j < x[0].length; j++)
+				for (int k = 0; k < x.length; k++)
+					z[i][j] += x[i][k] * y[k][j];
+
+		return z;
+	}
 	/**
 	 * Generate string representation of adjacency matrix
 	 * @return the String

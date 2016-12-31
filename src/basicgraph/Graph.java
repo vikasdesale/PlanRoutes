@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Comparator;
 
 import util.GraphLoader;
 
@@ -122,7 +123,19 @@ public abstract class Graph {
 	 */
 	public List<Integer> degreeSequence() {
 		// XXX: Implement in part 1 of week 2
-		return null;
+		List<Integer> dSequence = new ArrayList<>();
+		for (int j = 0; j < numVertices; j++)
+			dSequence.add(getInNeighbors(j).size() + getNeighbors(j).size());
+
+		Collections.sort(dSequence, new Comparator<Integer>() {
+
+			@Override
+			public int compare(Integer v1, Integer v2) {
+				return v2.compareTo(v1);
+			}
+		});
+		
+		return dSequence;
 	}
 	
 	/**
