@@ -251,7 +251,25 @@ public class MapGraph {
 		// Hook for visualization.  See writeup.
 		//nodeSearched.accept(next.getLocation());
 		
-		return null;
+		if (start == null || goal == null) {
+			System.out.println("Start or goal node is null!  No path exists.");
+			return null;
+		}
+
+		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<>();
+		MapNode startNode = null;
+
+		// Prepare vertices for search.
+		for (MapNode node : vertices.values()) {
+			if (node.equals(start)) {
+				startNode = node;
+				node.setTimeFromStartNode(0);
+			} else
+				node.setTimeFromStartNode(Double.POSITIVE_INFINITY);
+			node.setStraightLineTimeToGoalNodeAtHighwayLimit(goal);
+		}
+
+		return aStarSearch(startNode, goal, parentMap, nodeSearched) ? constructPath(start, goal, parentMap) : null;
 		
 	}
 
@@ -297,7 +315,40 @@ public class MapGraph {
 		return path;
 	}
 	
+	private boolean aStarSearch(MapNode start, GeographicPoint goal,
+			HashMap<GeographicPoint, GeographicPoint> parentMap, Consumer<GeographicPoint> nodeSearched) {
+		HashSet<MapNode> visited = new HashSet<>();
+		PriorityQueue<MapNode> toExplore = new PriorityQueue<>();
 
+		toExplore.add(start);
+
+		while (!toExplore.isEmpty()) {
+			MapNode current = toExplore.remove();
+			if (visited.contains(current))
+				continue;
+
+			visited.add(current);
+			nodeSearched.accept(current);
+			if (current.equals(goal))
+				return true;
+
+			for (MapEdge neighborEdge : getNeighbors(current)) {
+				MapNode neighbor = neighborEdge.getTo();
+				if (!visited.contains(neighbor)) {
+					double time;
+					if ((time = current.getTimeFromStartNode()
+							+ neighborEdge.getLength() / neighborEdge.getMaxSpeed()) < neighbor
+									.getTimeFromStartNode()) {
+						neighbor.setTimeFromStartNode(time);
+						toExplore.add(neighbor);
+						parentMap.put(neighbor, current);
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 	public static void main(String[] args)
 	{
 		/*System.out.print("Making a new map...");
